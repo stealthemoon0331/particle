@@ -43,18 +43,18 @@ export const MicrofiberStarModel: React.FC = () => {
     directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
 
-    // Debugging helpers
-    scene.add(new THREE.AxesHelper(50));
-    const gridHelper = new THREE.GridHelper(100, 10, 0x888888, 0x888888);
-    gridHelper.position.y = -10;
-    scene.add(gridHelper);
+    // // Debugging helpers
+    // scene.add(new THREE.AxesHelper(50));
+    // const gridHelper = new THREE.GridHelper(100, 10, 0x888888, 0x888888);
+    // gridHelper.position.y = -10;
+    // scene.add(gridHelper);
 
-    const targetMarker = new THREE.Mesh(
-      new THREE.SphereGeometry(0.5, 32, 32),
-      new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    );
-    targetMarker.position.set(600, -250, 0);
-    scene.add(targetMarker);
+    // const targetMarker = new THREE.Mesh(
+    //   new THREE.SphereGeometry(0.5, 32, 32),
+    //   new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    // );
+    // targetMarker.position.set(600, -250, 0);
+    // scene.add(targetMarker);
 
     if (!renderer.getContext()) {
       console.error("WebGL not supported");
