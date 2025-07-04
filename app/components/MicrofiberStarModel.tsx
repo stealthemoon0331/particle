@@ -13,7 +13,7 @@ export const MicrofiberStarModel: React.FC = () => {
   const particleCount = 1000;
 
   let currentParticleCount = particleCount;
-  const maxParticles = 30000;
+  const maxParticles = 3000000;
 
   // Particle setup
 
@@ -21,6 +21,7 @@ export const MicrofiberStarModel: React.FC = () => {
   const positions = new Float32Array(maxParticles * 3);
   const velocities = new Float32Array(maxParticles * 3);
   const targetPositions = new Float32Array(maxParticles * 3);
+  const gatherSpeeds = new Float32Array(maxParticles);
 
   const sectorHalfAngle = Math.PI / 3; // 30 degrees
 
@@ -128,7 +129,7 @@ export const MicrofiberStarModel: React.FC = () => {
       }
 
       if (rotationSpeed.current > 0 && currentParticleCount < maxParticles) {
-        addParticles(20); // Increment size as desired
+        addParticles(200); // Increment size as desired
       }
 
       if (model) {
@@ -146,7 +147,10 @@ export const MicrofiberStarModel: React.FC = () => {
           x * Math.sin(velocities[i + 1]) + z * Math.cos(velocities[i + 1]);
         console.log("rotationSpeed.current => ", rotationSpeed.current);
         if (rotationSpeed.current > 0) {
-          const lerpFactor = rotationSpeed.current * 0.3; // Adjust factor if too fast/slow
+          const gatherFactor = gatherSpeeds[i / 3]; // Individualized
+          const baseLerp = rotationSpeed.current * 0.3 * gatherFactor;
+          const lerpFactor = Math.min(0.1, Math.max(baseLerp, 0.005));
+
           positions[i] = THREE.MathUtils.lerp(
             newX,
             targetPositions[i],
@@ -167,7 +171,7 @@ export const MicrofiberStarModel: React.FC = () => {
           const randomSpeedBoost = 200;
           positions[i] += velocities[i] * randomSpeedBoost;
           positions[i + 1] += velocities[i + 1] * randomSpeedBoost;
-          positions[i + 2] += velocities[i + 2] * randomSpeedBoost
+          positions[i + 2] += velocities[i + 2] * randomSpeedBoost;
         }
       }
 
@@ -202,6 +206,8 @@ export const MicrofiberStarModel: React.FC = () => {
     const end = Math.min(currentParticleCount + num, maxParticles) * 3;
 
     for (let i = start; i < end; i += 3) {
+      gatherSpeeds[i / 3] = 0.5 + Math.random() * 0.8;
+
       const theta = Math.random() * 2 * Math.PI;
       const phi = Math.acos(2 * Math.random() - 1);
       const r = particleRadius * Math.cbrt(Math.random());
@@ -236,7 +242,7 @@ export const MicrofiberStarModel: React.FC = () => {
     if (direction !== lastScrollDirection.current) {
       if (direction === "up") {
         console.log("Scrolling up: generating new scatter");
-        regenerateInitialPositions();
+        regenerateInitialPositions(); // Scatter
       }
       lastScrollDirection.current = direction;
     }
@@ -245,15 +251,13 @@ export const MicrofiberStarModel: React.FC = () => {
     scrollProgress.current = Math.max(0, Math.min(1, scrollProgress.current));
 
     if (direction === "down") {
-      rotationSpeed.current += (scrollDelta + 1) * 1;
+      rotationSpeed.current += Math.abs(scrollDelta) * 0.0001;
+      updateTargetPositions(); // ✅ Only gather targets on scroll down
     } else {
       rotationSpeed.current -= Math.abs(scrollDelta) * 0.0001;
     }
-    console.log("rotationSpeed.current  => ", rotationSpeed.current);
 
-    rotationSpeed.current = Math.max(0, Math.min(rotationSpeed.current, 0.05));
-
-    updateTargetPositions();
+    rotationSpeed.current = Math.max(0, Math.min(rotationSpeed.current, 0.5));
   };
 
   const updateTargetPositions = () => {
@@ -267,9 +271,11 @@ export const MicrofiberStarModel: React.FC = () => {
       const y = r * Math.cos(phi);
       const z = r * Math.sin(phi) * Math.sin(theta);
 
-      targetPositions[i] = maxDim * 0;
-      targetPositions[i + 1] = maxDim * 0.2;
-      targetPositions[i + 2] = maxDim * 0.1;
+      const spread = maxDim * 0.05; // small positional jitter
+
+      targetPositions[i] = maxDim * 0 + (Math.random() - 0.5) * spread;
+      targetPositions[i + 1] = maxDim * 0.2 + (Math.random() - 0.5) * spread;
+      targetPositions[i + 2] = maxDim * 0.1 + (Math.random() - 0.5) * spread;
 
       // targetPositions[i] = x;
       // targetPositions[i + 1] = y;
@@ -279,6 +285,8 @@ export const MicrofiberStarModel: React.FC = () => {
 
   const regenerateInitialPositions = () => {
     for (let i = 0; i < currentParticleCount * 3; i += 3) {
+      gatherSpeeds[i / 3] = 0.5 + Math.random() * 0.8;
+
       const theta = Math.random() * 2 * Math.PI;
       const phi = Math.acos(2 * Math.random() - 1);
       const r = particleRadius * Math.cbrt(Math.random());
