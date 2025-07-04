@@ -9,11 +9,11 @@ export const MicrofiberStarModel: React.FC = () => {
   const lastScrollDirection = useRef<"up" | "down" | null>(null);
 
   let maxDim = 0;
-  let particleRadius = 1500;
+  let particleRadius = 500;
   const particleCount = 1000;
 
   let currentParticleCount = particleCount;
-  const maxParticles = 300000;
+  const maxParticles = 30000;
 
   // Particle setup
 
@@ -144,23 +144,31 @@ export const MicrofiberStarModel: React.FC = () => {
           x * Math.cos(velocities[i + 1]) - z * Math.sin(velocities[i + 1]);
         const newZ =
           x * Math.sin(velocities[i + 1]) + z * Math.cos(velocities[i + 1]);
-
-        const lerpFactor = 0.05 * scrollProgress.current;
-        positions[i] = THREE.MathUtils.lerp(
-          newX,
-          targetPositions[i],
-          lerpFactor
-        );
-        positions[i + 1] = THREE.MathUtils.lerp(
-          y,
-          targetPositions[i + 1],
-          lerpFactor
-        );
-        positions[i + 2] = THREE.MathUtils.lerp(
-          newZ,
-          targetPositions[i + 2],
-          lerpFactor
-        );
+        console.log("rotationSpeed.current => ", rotationSpeed.current);
+        if (rotationSpeed.current > 0) {
+          const lerpFactor = rotationSpeed.current * 0.3; // Adjust factor if too fast/slow
+          positions[i] = THREE.MathUtils.lerp(
+            newX,
+            targetPositions[i],
+            lerpFactor
+          );
+          positions[i + 1] = THREE.MathUtils.lerp(
+            y,
+            targetPositions[i + 1],
+            lerpFactor
+          );
+          positions[i + 2] = THREE.MathUtils.lerp(
+            newZ,
+            targetPositions[i + 2],
+            lerpFactor
+          );
+        } else {
+          // Move randomly when rotation speed is 0
+          const randomSpeedBoost = 200;
+          positions[i] += velocities[i] * randomSpeedBoost;
+          positions[i + 1] += velocities[i + 1] * randomSpeedBoost;
+          positions[i + 2] += velocities[i + 2] * randomSpeedBoost
+        }
       }
 
       particlesGeometry.attributes.position.needsUpdate = true;
