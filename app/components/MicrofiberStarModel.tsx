@@ -113,7 +113,8 @@ export const MicrofiberStarModel: React.FC = () => {
 
         camera.position.set(-maxDim * 0.7, maxDim * 0.9, maxDim * 1);
         model.rotation.x += 0.6;
-        camera.lookAt(-200, 100, 0);
+        const isMobile = window.innerWidth <= 768;
+        camera.lookAt(isMobile ? 300 : -200, 100, 0);
       },
       undefined,
       (error) => console.error("Error loading GLB:", error)
@@ -165,7 +166,7 @@ export const MicrofiberStarModel: React.FC = () => {
       particlesGeometry.attributes.position.needsUpdate = true;
       renderer.render(scene, camera);
     };
-    
+
     animate();
 
     const handleResize = () => {
@@ -236,10 +237,11 @@ export const MicrofiberStarModel: React.FC = () => {
     scrollProgress.current = Math.max(0, Math.min(1, scrollProgress.current));
 
     if (direction === "down") {
-      rotationSpeed.current += scrollDelta * 0.0001;
+      rotationSpeed.current += (scrollDelta + 1) * 1;
     } else {
       rotationSpeed.current -= Math.abs(scrollDelta) * 0.0001;
     }
+    console.log("rotationSpeed.current  => ", rotationSpeed.current);
 
     rotationSpeed.current = Math.max(0, Math.min(rotationSpeed.current, 0.05));
 
@@ -260,6 +262,10 @@ export const MicrofiberStarModel: React.FC = () => {
       targetPositions[i] = maxDim * 0;
       targetPositions[i + 1] = maxDim * 0.2;
       targetPositions[i + 2] = maxDim * 0.1;
+
+      // targetPositions[i] = x;
+      // targetPositions[i + 1] = y;
+      // targetPositions[i + 2] = z;
     }
   };
 
@@ -290,10 +296,8 @@ export const MicrofiberStarModel: React.FC = () => {
   return (
     <div
       ref={mountRef}
-      className="w-[100%] h-full"
+      className="w-full h-full min-h-[640px] min-w-[600px]"
       style={{
-        minHeight: "640px",
-        minWidth: "600px",
         background: "transparent",
       }}
     />

@@ -45,9 +45,9 @@ export function Landing() {
   }, []);
 
   return (
-    <main className="flex flex-col items-center justify-center pt-4 gap-8 px-40 bg-[#00001a] text-white h-[100vh]">
+    <main className="flex flex-col items-center justify-center pt-4 gap-8 px-4 md:px-10 lg:px-40 bg-[#00001a] text-white h-screen">
       <div className="flex justify-end w-full min-h-0 mb-8">
-        <header className="flex items-center gap-9 text-xs">
+        <header className="flex flex-wrap items-center gap-4 md:gap-6 text-xs">
           <a>HOME</a>
           <a>EXPERTISE</a>
           <a>INNOVATION</a>
@@ -55,10 +55,10 @@ export function Landing() {
           <a>ABOUT</a>
         </header>
       </div>
-      <section className="hero flex w-full relative">
+      <section className="hero flex flex-col lg:flex-row w-full relative">
         <div
           ref={scrollRef}
-          className="flex flex-col w-1/2 px-22 absolute h-full overflow-y-auto no-scrollbar"
+          className="flex flex-col w-full lg:w-1/2 px-4 md:px-8 lg:px-20 absolute h-full overflow-y-auto no-scrollbar"
           style={{ scrollBehavior: "smooth" }}
         >
           {/* Content 1 */}
@@ -68,12 +68,14 @@ export function Landing() {
               showContent1 ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
-            <h1 className="text-5xl font-bold mb-4 bg-[#00001a] z-10 pt-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-[#00001a] z-10 pt-4">
               We are Microfiber
             </h1>
-            <h2 className="text-3xl mb-4">We are Concept Manufacturing</h2>
-            <span className="text-lg mb-6">
-              From custom product development to private-label manufaturing,
+            <h2 className="text-xl md:text-2xl lg:text-3xl mb-4">
+              We are Concept Manufacturing
+            </h2>
+            <span className="text-base md:text-lg mb-6 block">
+              From custom product development to private-label manufacturing,
               <br />
               we deliver innovative microfiber cleaning solutions that are
               expertly crafted and scientifically tested.
@@ -87,32 +89,33 @@ export function Landing() {
               showContent2 ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
-            <h2 className="text-3xl ">INNOVATION GALLERY</h2>
-            <div className="flex gap-4">
-              <div className="flex-1 grid grid-cols-3 w-full">
+            <h2 className="text-2xl md:text-3xl mb-4">INNOVATION GALLERY</h2>
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-1">
                 {productItems.map((product, index) => (
                   <div
                     key={index}
-                    className="flex flex-col items-center text-center p-4 cursor-pointer"
+                    className="flex flex-col items-center text-center p-2 cursor-pointer"
                     onClick={() => selectProduct(product.url)}
                   >
                     <img
                       src={product.url}
-                      alt="item"
-                      className="w-full h-48 mb-2"
+                      alt={product.name}
+                      className="w-full h-36 sm:h-48 object-cover mb-2"
                     />
                     <div className="text-sm font-medium">{product.name}</div>
                   </div>
                 ))}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 hidden lg:block">
                 <ProductPreview url={previewUrl} />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="w-full">
+        {/* 3D Model - Take full width on mobile */}
+        <div className="w-full me:w-1/2 h-full">
           <MicrofiberStarModel />
         </div>
       </section>
