@@ -47,7 +47,7 @@ export function Landing() {
   return (
     <main className="flex flex-col items-center justify-center pt-4 gap-8  bg-[#00001a] text-white h-screen">
       <div className="flex justify-end w-full min-h-0 mb-8 px-4 md:px-20 lg:px-80">
-        <header className="flex flex-wrap items-center gap-4 md:gap-6 text-xs">
+        <header className="flex flex-wrap items-center gap-4 md:gap-6 text-base">
           <a>HOME</a>
           <a>EXPERTISE</a>
           <a>INNOVATION</a>
