@@ -32,8 +32,8 @@ export function Landing() {
       const scrollTop = scrollRef.current.scrollTop;
       const content2Top = content2Ref.current.offsetTop;
 
-      setShowContent1(scrollTop < content2Top - 150);
-      setShowContent2(scrollTop >= content2Top - 150);
+      setShowContent1(scrollTop < content2Top - 250);
+      setShowContent2(scrollTop >= content2Top - 250);
     };
 
     const scrollContainer = scrollRef.current;
@@ -45,8 +45,8 @@ export function Landing() {
   }, []);
 
   return (
-    <main className="flex flex-col items-center justify-center pt-4 gap-8 px-4 md:px-10 lg:px-40 bg-[#00001a] text-white h-screen">
-      <div className="flex justify-end w-full min-h-0 mb-8">
+    <main className="flex flex-col items-center justify-center pt-4 gap-8  bg-[#00001a] text-white h-screen">
+      <div className="flex justify-end w-full min-h-0 mb-8 px-4 md:px-20 lg:px-80">
         <header className="flex flex-wrap items-center gap-4 md:gap-6 text-xs">
           <a>HOME</a>
           <a>EXPERTISE</a>
@@ -58,25 +58,24 @@ export function Landing() {
       <section className="hero flex flex-col lg:flex-row w-full relative">
         <div
           ref={scrollRef}
-          className="flex flex-col w-full lg:w-1/2 px-4 md:px-8 lg:px-20 absolute h-full overflow-y-auto no-scrollbar"
+          className="flex flex-col justify-between w-full lg:w-3/4 px-4 md:px-20 lg:px-80 absolute h-full overflow-y-auto no-scrollbar"
           style={{ scrollBehavior: "smooth" }}
         >
           {/* Content 1 */}
           <div
             ref={content1Ref}
-            className={`transition-opacity duration-500 ${
+            className={`transition-opacity z-0 duration-500 ${
               showContent1 ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-[#00001a] z-10 pt-4">
-              We are Microfiber
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-4 z-0 pt-4">
+              We are <br/> Microfiber
             </h1>
-            <h2 className="text-xl md:text-2xl lg:text-3xl mb-4">
-              We are Concept Manufacturing
+            <h2 className="text-xl md:text-3xl lg:text-5xl mb-4">
+              We are Concept <br/> Manufacturing
             </h2>
-            <span className="text-base md:text-lg mb-6 block">
+            <span className="text-base md:text-xl lg:text-2xl mb-6 block pr-60">
               From custom product development to private-label manufacturing,
-              <br />
               we deliver innovative microfiber cleaning solutions that are
               expertly crafted and scientifically tested.
             </span>

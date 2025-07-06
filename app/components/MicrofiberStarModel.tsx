@@ -10,7 +10,7 @@ export const MicrofiberStarModel: React.FC = () => {
 
   let maxDim = 0;
   let particleRadius = 500;
-  const particleCount = 1000;
+  const particleCount = 500;
 
   let currentParticleCount = particleCount;
   const maxParticles = 3000000;
@@ -112,10 +112,11 @@ export const MicrofiberStarModel: React.FC = () => {
         particleRadius = maxDim * 1.5;
         updateTargetPositions();
 
-        camera.position.set(-maxDim * 0.7, maxDim * 0.9, maxDim * 1);
-        model.rotation.x += 0.6;
+        camera.position.set(-maxDim * 0.6, maxDim * 0.5, maxDim * 1);
+        model.rotation.x += 1;
+
         const isMobile = window.innerWidth <= 768;
-        camera.lookAt(isMobile ? 300 : -200, 100, 0);
+        camera.lookAt(isMobile ? 300 : -100, -50, 0);
       },
       undefined,
       (error) => console.error("Error loading GLB:", error)
@@ -129,7 +130,7 @@ export const MicrofiberStarModel: React.FC = () => {
       }
 
       if (rotationSpeed.current > 0 && currentParticleCount < maxParticles) {
-        addParticles(200); // Increment size as desired
+        addParticles(10); // Increment size as desired
       }
 
       if (model) {
@@ -312,7 +313,7 @@ export const MicrofiberStarModel: React.FC = () => {
   return (
     <div
       ref={mountRef}
-      className="w-full h-full min-h-[640px] min-w-[600px]"
+      className="w-[90vw] h-[80vh] min-h-[640px] min-w-[600px]"
       style={{
         background: "transparent",
       }}
