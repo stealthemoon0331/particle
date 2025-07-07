@@ -116,21 +116,26 @@ export function sampleParticlesByRadialDistance(
 
 export const updateTargetPositions = ({
   targetPositions,
+  maxDim,
   currentParticleCount,
-  objModel,
-}: {
-  targetPositions: Float32Array;
-  currentParticleCount: number;
-  objModel: THREE.Object3D;
-}) => {
-  const localTarget = new THREE.Vector3(0, 250, 0);
-  const worldTarget = localTarget.clone().applyMatrix4(objModel.matrixWorld);
+  scrollProgress,
+  particleRadius,
+}: any) => {
+  for (let i = 0; i < currentParticleCount * 3; i += 3) {
+    const r = particleRadius * Math.cbrt(Math.random());
+    const theta = Math.random() * 2 * Math.PI;
+    const maxPhi = SECTOR_HALF_ANGLE * scrollProgress.current;
+    const phi = Math.random() * maxPhi;
 
-  for (let i = 0; i < currentParticleCount; i++) {
-    const i3 = i * 3;
-    targetPositions[i3] = worldTarget.x;
-    targetPositions[i3 + 1] = worldTarget.y;
-    targetPositions[i3 + 2] = worldTarget.z;
+    const x = r * Math.sin(phi) * Math.cos(theta);
+    const y = r * Math.cos(phi);
+    const z = r * Math.sin(phi) * Math.sin(theta);
+
+    const spread = maxDim * 0.05; // small positional jitter
+
+    targetPositions[i] = maxDim * 0 + (Math.random() - 0.5) * spread;
+    targetPositions[i + 1] = maxDim * 0.2 + (Math.random() - 0.5) * spread;
+    targetPositions[i + 2] = maxDim * 0.1 + (Math.random() - 0.5) * spread;
   }
 };
 

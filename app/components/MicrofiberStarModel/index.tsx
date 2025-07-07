@@ -52,9 +52,9 @@ const MicrofiberStarModel: React.FC = () => {
     mountRef.current.appendChild(renderer.domElement);
 
     // Lighting
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    // scene.add(new THREE.AmbientLight(0xffffff, 0.8));
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(1, 1, 1);
+    // directionalLight.position.set(-1, 1, 1);
     scene.add(directionalLight);
 
     if (!renderer.getContext()) {
@@ -93,7 +93,7 @@ const MicrofiberStarModel: React.FC = () => {
     });
 
     // Load star
-    loadParticleModel("/assets/star.glb", 1000000, scene, (pivot, size) => {
+    loadParticleModel("/assets/star.glb", 100000, scene, (pivot, size) => {
 
       starModel = pivot;
       maxDim = Math.max(size.x, size.y, size.z, 10);
@@ -115,8 +115,10 @@ const MicrofiberStarModel: React.FC = () => {
       if (rotationSpeed.current > 0) {
         updateTargetPositions({
           targetPositions,
+          maxDim,
           currentParticleCount,
-          objModel,
+          scrollProgress: scrollProgress.current,
+          particleRadius,
         });
 
         addParticles({
@@ -204,7 +206,7 @@ const MicrofiberStarModel: React.FC = () => {
   return (
     <div
       ref={mountRef}
-      className="w-[100vw] h-[100vh] min-h-[640px] min-w-[600px]"
+      className="w-[100vw] h-[100vh] min-h-[640px] min-w-[600px] md:bottom-5"
       style={{
         background: "transparent",
       }}
