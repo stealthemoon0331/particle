@@ -43,9 +43,13 @@ export const setupParticles = (
   attr.setUsage(THREE.DynamicDrawUsage);
   geometry.setAttribute("position", attr);
 
+  const textureLoader = new THREE.TextureLoader();
+  const texture = textureLoader.load("/assets/map_mask.png");
+
   const material = new THREE.PointsMaterial({
     color: 0xffffff,
-    size: 2.0,
+    map: texture,
+    size: 10,
     transparent: true,
     blending: THREE.AdditiveBlending,
   });
@@ -103,7 +107,7 @@ export function sampleParticlesByRadialDistance(
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   const material = new THREE.PointsMaterial({
-    size: 0.025,
+    size: 0.25,
     vertexColors: true, // Enable custom colors
   });
 
@@ -112,26 +116,21 @@ export function sampleParticlesByRadialDistance(
 
 export const updateTargetPositions = ({
   targetPositions,
-  maxDim,
   currentParticleCount,
-  scrollProgress,
-  particleRadius,
-}: any) => {
-  for (let i = 0; i < currentParticleCount * 3; i += 3) {
-    const r = particleRadius * Math.cbrt(Math.random());
-    const theta = Math.random() * 2 * Math.PI;
-    const maxPhi = SECTOR_HALF_ANGLE * scrollProgress.current;
-    const phi = Math.random() * maxPhi;
+  objModel,
+}: {
+  targetPositions: Float32Array;
+  currentParticleCount: number;
+  objModel: THREE.Object3D;
+}) => {
+  const localTarget = new THREE.Vector3(0, 250, 0);
+  const worldTarget = localTarget.clone().applyMatrix4(objModel.matrixWorld);
 
-    const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = r * Math.cos(phi);
-    const z = r * Math.sin(phi) * Math.sin(theta);
-
-    const spread = maxDim * 0.05; // small positional jitter
-
-    targetPositions[i] = maxDim * 0 + (Math.random() - 0.5) * spread;
-    targetPositions[i + 1] = maxDim * 0.2 + (Math.random() - 0.5) * spread;
-    targetPositions[i + 2] = maxDim * 0.1 + (Math.random() - 0.5) * spread;
+  for (let i = 0; i < currentParticleCount; i++) {
+    const i3 = i * 3;
+    targetPositions[i3] = worldTarget.x;
+    targetPositions[i3 + 1] = worldTarget.y;
+    targetPositions[i3 + 2] = worldTarget.z;
   }
 };
 
@@ -186,8 +185,21 @@ export const updateParticles = ({
   velocities,
   targetPositions,
   gatherSpeeds,
-}: any) => {
+  onParticleRemoved,
+}: {
+  rotationSpeed: number;
+  currentParticleCount: number;
+  positions: Float32Array;
+  velocities: Float32Array;
+  targetPositions: Float32Array;
+  gatherSpeeds: Float32Array;
+  onParticleRemoved?: (index: number) => void;
+}): number => {
+  let newCount = currentParticleCount;
+  const threshold = 0.2;
+
   for (let i = 0; i < currentParticleCount * 3; i += 3) {
+    const i3 = i * 3;
     const x = positions[i];
     const y = positions[i + 1];
     const z = positions[i + 2];
@@ -195,6 +207,30 @@ export const updateParticles = ({
 
     const newX = x * Math.cos(theta) - z * Math.sin(theta);
     const newZ = x * Math.sin(theta) + z * Math.cos(theta);
+
+    const targetX = targetPositions[i3];
+    const targetY = targetPositions[i3 + 1];
+    const targetZ = targetPositions[i3 + 2];
+
+    const dx = newX - targetX;
+    const dy = y - targetY;
+    const dz = newZ - targetZ;
+    const distSq = dx * dx + dy * dy + dz * dz;
+
+    if (distSq < threshold * threshold) {
+      const lastIndex = (newCount - 1) * 3;
+      if (i !== newCount - 1) {
+        for (let j = 0; j < 3; j++) {
+          positions[i3 + j] = positions[lastIndex + j];
+          velocities[i3 + j] = velocities[lastIndex + j];
+          targetPositions[i3 + j] = targetPositions[lastIndex + j];
+        }
+        gatherSpeeds[i] = gatherSpeeds[newCount - 1];
+      }
+      newCount--;
+      if (onParticleRemoved) onParticleRemoved(i);
+      continue; // Do not increment i, since we swapped in a new one
+    }
 
     if (rotationSpeed > 0) {
       const gatherFactor = gatherSpeeds[i / 3];
@@ -220,5 +256,8 @@ export const updateParticles = ({
       positions[i + 1] += velocities[i + 1] * randomSpeed;
       positions[i + 2] += velocities[i + 2] * randomSpeed;
     }
+     i++;
   }
+  
+  return newCount;
 };

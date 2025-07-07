@@ -43,7 +43,7 @@ export const loadParticleModel = (
             roughness: 0.8,
             metalness: 0.1,
             transparent: true,
-            opacity: 0.25, // Mesh visible but subtle
+            opacity: 0.3,
           });
 
           // Add mesh to pivot

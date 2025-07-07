@@ -115,14 +115,12 @@ const MicrofiberStarModel: React.FC = () => {
       if (rotationSpeed.current > 0) {
         updateTargetPositions({
           targetPositions,
-          maxDim,
           currentParticleCount,
-          scrollProgress: scrollProgress.current,
-          particleRadius,
+          objModel,
         });
 
         addParticles({
-          count: 3,
+          count: 5,
           currentParticleCount,
           maxParticles,
           particleRadius,
@@ -137,13 +135,17 @@ const MicrofiberStarModel: React.FC = () => {
 
       if (starModel) starModel.rotation.y += rotationSpeed.current;
 
-      updateParticles({
+      currentParticleCount = updateParticles({
         rotationSpeed: rotationSpeed.current,
         currentParticleCount,
         positions,
         velocities,
         targetPositions,
         gatherSpeeds,
+        onParticleRemoved: (i) => {
+          console.log("Particle", i, "removed");
+          // Optionally: add a new one immediately here if you want
+        },
       });
 
       particlesGeometry.attributes.position.needsUpdate = true;
@@ -181,8 +183,12 @@ const MicrofiberStarModel: React.FC = () => {
 
       scrollProgress.current += delta * 0.0001;
       scrollProgress.current = Math.max(0, Math.min(1, scrollProgress.current));
-      rotationSpeed.current += (direction === "down" ? 1 : -1) * Math.abs(delta) * 0.00005;
-      rotationSpeed.current = Math.max(0, Math.min(rotationSpeed.current, 0.05));
+      rotationSpeed.current +=
+        (direction === "down" ? 1 : -1) * Math.abs(delta) * 0.00005;
+      rotationSpeed.current = Math.max(
+        0,
+        Math.min(rotationSpeed.current, 0.05)
+      );
     };
 
     window.addEventListener("wheel", handleScroll);
