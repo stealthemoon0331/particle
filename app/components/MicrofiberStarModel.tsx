@@ -1,12 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { MeshSurfaceSampler } from "three/examples/jsm/math/MeshSurfaceSampler.js";
 
 export const MicrofiberStarModel: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const scrollProgress = useRef(0); // Track scroll progress for gathering
   const rotationSpeed = useRef(0);
   const lastScrollDirection = useRef<"up" | "down" | null>(null);
+  const scene = new THREE.Scene();
+
+  const objModel = new THREE.Group();
 
   let maxDim = 0;
   let particleRadius = 500;
@@ -31,7 +35,6 @@ export const MicrofiberStarModel: React.FC = () => {
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
-    const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -43,19 +46,6 @@ export const MicrofiberStarModel: React.FC = () => {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(0, 1, 1);
     scene.add(directionalLight);
-
-    // // Debugging helpers
-    // scene.add(new THREE.AxesHelper(50));
-    // const gridHelper = new THREE.GridHelper(100, 10, 0x888888, 0x888888);
-    // gridHelper.position.y = -10;
-    // scene.add(gridHelper);
-
-    // const targetMarker = new THREE.Mesh(
-    //   new THREE.SphereGeometry(0.5, 32, 32),
-    //   new THREE.MeshBasicMaterial({ color: 0xff0000 })
-    // );
-    // targetMarker.position.set(600, -250, 0);
-    // scene.add(targetMarker);
 
     if (!renderer.getContext()) {
       console.error("WebGL not supported");
@@ -80,7 +70,7 @@ export const MicrofiberStarModel: React.FC = () => {
     );
     scene.add(particleSystem);
 
-    // camera.position.set(10, 10, 10);
+    // camera.position.set(0, 0, 50);
     // camera.lookAt(0, 0, 0);
 
     const sectorAxis = new THREE.Vector3(0, 1, 0); // Y-axis
@@ -88,39 +78,108 @@ export const MicrofiberStarModel: React.FC = () => {
     window.addEventListener("wheel", handleScroll);
 
     let model: THREE.Object3D | null = null;
+    let starModel: THREE.Object3D | null = null;
+    let skinModel: THREE.Object3D | null = null;
+
     const loader = new GLTFLoader();
-    loader.load(
-      "/assets/model.glb",
-      (gltf) => {
-        model = gltf.scene;
-        scene.add(model);
 
-        const box = new THREE.Box3().setFromObject(model);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
-        gltf.scene.position.sub(center);
+    const loadParticleModel = (
+      url: string,
+      particleCount: number,
+      onLoaded: (pivot: THREE.Object3D, size: THREE.Vector3) => void
+    ) => {
+      loader.load(
+        url,
+        (gltf) => {
+          gltf.scene.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              const mesh = child as THREE.Mesh;
 
-        const pivot = new THREE.Object3D();
-        pivot.add(gltf.scene);
-        scene.add(pivot);
-        model = pivot;
+              mesh.updateWorldMatrix(true, false);
+              mesh.geometry.applyMatrix4(mesh.matrixWorld);
 
-        const size = new THREE.Vector3();
-        box.getSize(size);
+              const particles = sampleParticlesOnSurface(mesh, particleCount);
+              scene.add(particles);
+
+              const box = new THREE.Box3().setFromBufferAttribute(
+                mesh.geometry.attributes.position as THREE.BufferAttribute
+              );
+              const center = new THREE.Vector3();
+              box.getCenter(center);
+              particles.position.sub(center);
+
+              const pivot = new THREE.Object3D();
+              pivot.add(particles);
+              scene.add(pivot);
+
+              const size = new THREE.Vector3();
+              box.getSize(size);
+
+              onLoaded(pivot, size);
+            }
+          });
+        },
+        undefined,
+        (err) => console.error(`Error loading ${url}:`, err)
+      );
+    };
+
+    const load = () => {
+      // Load skin.glb normally, keep as mesh
+      loader.load(
+        "/assets/skin.glb",
+        (gltf) => {
+          gltf.scene.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              const mesh = child as THREE.Mesh;
+              mesh.castShadow = true;
+              mesh.receiveShadow = true;
+            }
+          });
+
+          skinModel = gltf.scene;
+
+          skinModel.rotation.x = Math.PI / 3;
+          skinModel.rotation.z = -Math.PI / 3;
+          skinModel.rotation.y = Math.PI / 6;
+
+          // Center the model
+          const box = new THREE.Box3().setFromObject(skinModel);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
+          skinModel.position.sub(center);
+
+          scene.add(skinModel);
+        },
+        undefined,
+        (err) => console.error("Error loading skin.glb:", err)
+      );
+
+      loadParticleModel("/assets/star.glb", 8000, (pivot, size) => {
+        starModel = pivot;
 
         maxDim = Math.max(size.x, size.y, size.z, 10);
         particleRadius = maxDim * 1.5;
         updateTargetPositions();
 
-        camera.position.set(-maxDim * 0.6, maxDim * 0.5, maxDim * 1);
-        model.rotation.x += 1;
+        objModel.add(starModel);
+
+        // objModel.rotation.x
+
+        camera.position.set(maxDim * 1, maxDim * 1, maxDim * 1);
+
+        objModel.rotation.x = Math.PI / 3;
+        objModel.rotation.z = -Math.PI / 3;
+        objModel.rotation.y = Math.PI / 6;
+
+        scene.add(objModel);
 
         const isMobile = window.innerWidth <= 768;
         camera.lookAt(isMobile ? 300 : -100, -50, 0);
-      },
-      undefined,
-      (error) => console.error("Error loading GLB:", error)
-    );
+      });
+    };
+
+    load();
 
     const animate = () => {
       requestAnimationFrame(animate);
@@ -133,8 +192,8 @@ export const MicrofiberStarModel: React.FC = () => {
         addParticles(10); // Increment size as desired
       }
 
-      if (model) {
-        model.rotation.y += rotationSpeed.current;
+      if (starModel) {
+        starModel.rotation.y += rotationSpeed.current;
       }
 
       for (let i = 0; i < currentParticleCount * 3; i += 3) {
@@ -309,6 +368,37 @@ export const MicrofiberStarModel: React.FC = () => {
       targetPositions[i + 2] = z;
     }
   };
+
+  function sampleParticlesOnSurface(
+    mesh: THREE.Mesh,
+    count: number = 10000
+  ): THREE.Points {
+    const geometry = mesh.geometry as THREE.BufferGeometry;
+
+    const sampler = new MeshSurfaceSampler(mesh).build();
+
+    const positions = new Float32Array(count * 3);
+    const tempPosition = new THREE.Vector3();
+
+    for (let i = 0; i < count; i++) {
+      sampler.sample(tempPosition);
+      positions.set([tempPosition.x, tempPosition.y, tempPosition.z], i * 3);
+    }
+
+    const particleGeometry = new THREE.BufferGeometry();
+    particleGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(positions, 3)
+    );
+
+    const particleMaterial = new THREE.PointsMaterial({
+      color: 0x00ffff,
+      size: 0.02,
+    });
+
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    return particles;
+  }
 
   return (
     <div
