@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MicrofiberStarModel } from "~/components/MicrofiberStarModel";
+import MicrofiberStarModel from "~/components/MicrofiberStarModel/index";
 import ProductPreview from "~/components/ProductPreview";
 
 export function Landing() {
