@@ -182,7 +182,7 @@ const MicrofiberStarModel: React.FC = () => {
       scrollProgress.current += delta * 0.0001;
       scrollProgress.current = Math.max(0, Math.min(1, scrollProgress.current));
       rotationSpeed.current += (direction === "down" ? 1 : -1) * Math.abs(delta) * 0.00005;
-      rotationSpeed.current = Math.max(0, Math.min(rotationSpeed.current, 0.5));
+      rotationSpeed.current = Math.max(0, Math.min(rotationSpeed.current, 0.05));
     };
 
     window.addEventListener("wheel", handleScroll);
@@ -198,7 +198,7 @@ const MicrofiberStarModel: React.FC = () => {
   return (
     <div
       ref={mountRef}
-      className="w-[90vw] h-[80vh] min-h-[640px] min-w-[600px]"
+      className="w-[100vw] h-[100vh] min-h-[640px] min-w-[600px]"
       style={{
         background: "transparent",
       }}

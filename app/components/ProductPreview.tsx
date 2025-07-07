@@ -8,7 +8,7 @@ const ProductPreview = ({url} : ProductPreviewProps) => {
     return (
         <>
             <div className="text-center">
-                <img src={url} className="h-full w-full"/>
+                {/* <img src={url} className="h-full w-full"/> */}
             </div>
             <div className="controls">
                 

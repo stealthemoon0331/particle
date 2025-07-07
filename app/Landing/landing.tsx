@@ -25,66 +25,89 @@ export function Landing() {
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollRef.current || !content1Ref.current || !content2Ref.current)
-        return;
+    console.log("scrollRef.current => ", scrollRef.current);
+    const onScroll = () => {
+      if (!scrollRef.current) return;
 
       const scrollTop = scrollRef.current.scrollTop;
-      const content2Top = content2Ref.current.offsetTop;
+      const scrollHeight = scrollRef.current.scrollHeight;
+      const clientHeight = scrollRef.current.clientHeight;
 
-      setShowContent1(scrollTop < content2Top - 250);
-      setShowContent2(scrollTop >= content2Top - 250);
+      console.log("scrollTop => ", scrollTop);
+      console.log("clientHeight => ", clientHeight);
+
+      // Example threshold: halfway down switches to content2
+      if (scrollTop > clientHeight * 0.25) {
+        setShowContent1(false);
+        setShowContent2(true);
+      } else {
+        setShowContent1(true);
+        setShowContent2(false);
+      }
     };
 
-    const scrollContainer = scrollRef.current;
-    scrollContainer?.addEventListener("scroll", handleScroll);
+    const current = scrollRef.current;
+    if (current) {
+      current.addEventListener("scroll", onScroll);
+    }
 
     return () => {
-      scrollContainer?.removeEventListener("scroll", handleScroll);
+      if (current) {
+        current.removeEventListener("scroll", onScroll);
+      }
     };
   }, []);
 
   return (
-    <main className="flex flex-col items-center justify-center pt-4 gap-8  bg-[#00001a] text-white h-screen">
-      <div className="flex justify-end w-full min-h-0 mb-8 px-4 md:px-20 lg:px-80">
-        <header className="flex flex-wrap items-center gap-4 md:gap-6 text-base">
+    <main className="relative bg-[#00001a] text-white h-screen overflow-hidden">
+      {/* 3D Model Background */}
+      <div className="absolute inset-0 z-0">
+        <MicrofiberStarModel />
+      </div>
+
+      {/* Header */}
+      <header className="absolute top-0 w-full z-10 px-4 md:px-20 lg:px-80 py-16">
+        <nav className="flex flex-wrap items-center justify-end gap-4 md:gap-6 text-base">
           <a>HOME</a>
           <a>EXPERTISE</a>
           <a>INNOVATION</a>
           <a>MARKETS</a>
           <a>ABOUT</a>
-        </header>
-      </div>
-      <section className="hero flex flex-col lg:flex-row w-full relative">
-        <div
-          ref={scrollRef}
-          className="flex flex-col justify-between w-full lg:w-3/4 px-4 md:px-20 lg:px-80 absolute h-full overflow-y-auto no-scrollbar"
-          style={{ scrollBehavior: "smooth" }}
-        >
-          {/* Content 1 */}
+        </nav>
+      </header>
+
+      {/* Foreground Content */}
+      <section
+        ref={scrollRef}
+        className="relative z-10 h-[80vh] overflow-y-auto w-full pt-28 px-4 md:px-20 lg:px-80 no-scrollbar"
+        style={{ scrollBehavior: "smooth" }}
+      >
+        {/* Scrollable content wrapper with enough height */}
+        <div className="relative h-[200vh] w-full">
+          {/* Top half: Content Block 1 */}
           <div
             ref={content1Ref}
-            className={`transition-opacity z-0 duration-500 ${
+            className={`sticky top-0 left-0 w-full transition-opacity duration-500 ${
               showContent1 ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
-            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-4 z-0 pt-4">
-              We are <br/> Microfiber
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-4">
+              We are <br /> Microfiber
             </h1>
             <h2 className="text-xl md:text-3xl lg:text-5xl mb-4">
-              We are Concept <br/> Manufacturing
+              We are Concept <br /> Manufacturing
             </h2>
-            <span className="text-base md:text-xl lg:text-2xl mb-6 block pr-60">
-              From custom product development to private-label manufacturing,
-              we deliver innovative microfiber cleaning solutions that are
-              expertly crafted and scientifically tested.
+            <span className="text-base md:text-xl lg:text-2xl mb-6 block max-w-3xl lg:pr-64">
+              From custom product development to private-label manufacturing, we
+              deliver innovative microfiber cleaning solutions that are expertly
+              crafted and scientifically tested.
             </span>
           </div>
 
-          {/* Content 2 */}
+          {/* Bottom half: Content Block 2 */}
           <div
             ref={content2Ref}
-            className={`transition-opacity duration-500 ${
+            className={`sticky top-0 left-0 w-full transition-opacity duration-500 ${
               showContent2 ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
@@ -111,11 +134,6 @@ export function Landing() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* 3D Model - Take full width on mobile */}
-        <div className="w-full me:w-1/2 h-full">
-          <MicrofiberStarModel />
         </div>
       </section>
     </main>
