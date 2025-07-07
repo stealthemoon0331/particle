@@ -53,28 +53,61 @@ export const setupParticles = (
   return new THREE.Points(geometry, material);
 };
 
-export function sampleParticlesOnSurface(
+export function sampleParticlesByRadialDistance(
   mesh: THREE.Mesh,
   count: number = 10000
 ): THREE.Points {
-  const geometry = mesh.geometry as THREE.BufferGeometry;
-
   const sampler = new MeshSurfaceSampler(mesh).build();
 
   const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+
   const temp = new THREE.Vector3();
 
+  let minRadius = Infinity;
+  let maxRadius = -Infinity;
+
+  const sampled = [];
+
+  // First: Sample points & compute radial distance
   for (let i = 0; i < count; i++) {
     sampler.sample(temp);
-    positions.set([temp.x, temp.y, temp.z], i * 3);
+    const radius = Math.sqrt(temp.x ** 2 + temp.z ** 2); // distance from Y-axis
+
+    sampled.push({ pos: temp.clone(), radius });
+
+    minRadius = Math.min(minRadius, radius);
+    maxRadius = Math.max(maxRadius, radius);
   }
 
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  // Normalize and apply colors based on radius
+  for (let i = 0; i < count; i++) {
+    const { pos, radius } = sampled[i];
 
-  const mat = new THREE.PointsMaterial({ color: 0x00ffff, size: 0.02 });
+    const t = (radius - minRadius) / (maxRadius - minRadius); // normalize 0–1
+    const color = new THREE.Color();
 
-  return new THREE.Points(geo, mat);
+    // Example gradient: inner = blue, outer = red
+    // color.setHSL(0.6 - t * 0.6, 1.0, 0.5);
+    const innerColor = new THREE.Color(0xffff00); // Bright Yellow
+    const outerColor = new THREE.Color(0xff3300); // Strong Red + a little Yellow
+
+    color.lerpColors(innerColor, outerColor, t);
+
+    positions.set([pos.x, pos.y, pos.z], i * 3);
+    colors.set([color.r, color.g, color.b], i * 3);
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+  const material = new THREE.PointsMaterial({
+    size: 0.025,
+    vertexColors: true, // Enable custom colors
+  });
+
+  return new THREE.Points(geometry, material);
 }
 
 export const updateTargetPositions = ({
@@ -99,10 +132,6 @@ export const updateTargetPositions = ({
     targetPositions[i] = maxDim * 0 + (Math.random() - 0.5) * spread;
     targetPositions[i + 1] = maxDim * 0.2 + (Math.random() - 0.5) * spread;
     targetPositions[i + 2] = maxDim * 0.1 + (Math.random() - 0.5) * spread;
-
-    // targetPositions[i] = x;
-    // targetPositions[i + 1] = y;
-    // targetPositions[i + 2] = z;
   }
 };
 

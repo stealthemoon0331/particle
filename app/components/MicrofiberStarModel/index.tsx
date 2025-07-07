@@ -54,7 +54,7 @@ const MicrofiberStarModel: React.FC = () => {
     // Lighting
     scene.add(new THREE.AmbientLight(0xffffff, 0.8));
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(0, 1, 1);
+    directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
 
     if (!renderer.getContext()) {
@@ -86,9 +86,6 @@ const MicrofiberStarModel: React.FC = () => {
       // let skinObjectModel = new THREE.Group();
 
       objModel.add(skinModel);
-      objModel.rotation.x = Math.PI / 3;
-      objModel.rotation.z = -Math.PI / 3;
-      objModel.rotation.y = Math.PI / 6;
 
       box.getCenter(center);
       skinModel.position.sub(center);
@@ -96,15 +93,16 @@ const MicrofiberStarModel: React.FC = () => {
     });
 
     // Load star
-    loadParticleModel("/assets/star.glb", 200000, scene, (pivot, size) => {
+    loadParticleModel("/assets/star.glb", 1000000, scene, (pivot, size) => {
+      
       starModel = pivot;
       maxDim = Math.max(size.x, size.y, size.z, 10);
       particleRadius = maxDim * 1.5;
 
       objModel.add(starModel);
-      objModel.rotation.x = Math.PI / 3;
+      objModel.rotation.x = Math.PI / 6;
       objModel.rotation.z = -Math.PI / 3;
-      objModel.rotation.y = Math.PI / 6;
+      objModel.rotation.y = -Math.PI / 40;
 
       configureCamera(camera, maxDim);
       scene.add(objModel);
