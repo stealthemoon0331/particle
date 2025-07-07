@@ -94,7 +94,7 @@ const MicrofiberStarModel: React.FC = () => {
 
     // Load star
     loadParticleModel("/assets/star.glb", 1000000, scene, (pivot, size) => {
-      
+
       starModel = pivot;
       maxDim = Math.max(size.x, size.y, size.z, 10);
       particleRadius = maxDim * 1.5;
@@ -122,7 +122,7 @@ const MicrofiberStarModel: React.FC = () => {
         });
 
         addParticles({
-          count: 10,
+          count: 3,
           currentParticleCount,
           maxParticles,
           particleRadius,
@@ -181,8 +181,7 @@ const MicrofiberStarModel: React.FC = () => {
 
       scrollProgress.current += delta * 0.0001;
       scrollProgress.current = Math.max(0, Math.min(1, scrollProgress.current));
-      rotationSpeed.current +=
-        (direction === "down" ? 1 : -1) * Math.abs(delta) * 0.0001;
+      rotationSpeed.current += (direction === "down" ? 1 : -1) * Math.abs(delta) * 0.00005;
       rotationSpeed.current = Math.max(0, Math.min(rotationSpeed.current, 0.5));
     };
 
