@@ -51,10 +51,10 @@ const MicrofiberStarModel: React.FC = () => {
     renderer.setClearColor(0x000000, 0); // Transparent background
     mountRef.current.appendChild(renderer.domElement);
 
-    // Lighting
+    // Lightin
     // scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    // directionalLight.position.set(-1, 1, 1);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
 
     if (!renderer.getContext()) {
@@ -83,6 +83,23 @@ const MicrofiberStarModel: React.FC = () => {
       const box = new THREE.Box3().setFromObject(skinModel);
       const center = new THREE.Vector3();
 
+      const textureLoader = new THREE.TextureLoader();
+      const texture = textureLoader.load("/assets/texture_pipe1.png");
+      const material = new THREE.MeshStandardMaterial({
+        map: texture,
+        roughness: 1,
+        metalness: 0,
+        transparent: false,
+        opacity: 1.0, 
+      });
+
+      skinModel.traverse((child) => {
+        if((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          mesh.material = material;
+        }
+      })
+
       // let skinObjectModel = new THREE.Group();
 
       objModel.add(skinModel);
@@ -93,8 +110,7 @@ const MicrofiberStarModel: React.FC = () => {
     });
 
     // Load star
-    loadParticleModel("/assets/star.glb", 100000, scene, (pivot, size) => {
-
+    loadParticleModel("/assets/star.glb", 10000000, scene, (pivot, size) => {
       starModel = pivot;
       maxDim = Math.max(size.x, size.y, size.z, 10);
       particleRadius = maxDim * 1.5;

@@ -50,7 +50,10 @@ export const setupParticles = (
     color: 0xffffff,
     map: texture,
     size: 10,
+    sizeAttenuation: true,
     transparent: true,
+    alphaTest: 0.01,
+    depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
 

@@ -49,8 +49,8 @@ export const loadParticleModel = (
           }
 
           // Second pass: assign colors
-          const innerColor = new THREE.Color(0xebe8a7); // Yellow
-          const outerColor = new THREE.Color(0xff3300); // Red-Orange
+          const innerColor = new THREE.Color(0xffeb0a); // Yellow
+          const outerColor = new THREE.Color(0xff740a); // Red-Orange
           const tempColor = new THREE.Color();
 
           for (let i = 0; i < count; i++) {
