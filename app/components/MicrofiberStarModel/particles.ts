@@ -76,6 +76,8 @@ export function sampleParticlesByRadialDistance(
 
   const sampled = [];
 
+  const texture = new THREE.TextureLoader().load("/assets/map_mask.png");
+
   // First: Sample points & compute radial distance
   for (let i = 0; i < count; i++) {
     sampler.sample(temp);
@@ -110,8 +112,14 @@ export function sampleParticlesByRadialDistance(
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   const material = new THREE.PointsMaterial({
-    size: 0.25,
-    vertexColors: true, // Enable custom colors
+    size: 2.5,
+    // map: texture,
+    color: 0xffff00,
+    vertexColors: true,
+    transparent: false,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    alphaTest: 0.1,
   });
 
   return new THREE.Points(geometry, material);
@@ -125,20 +133,9 @@ export const updateTargetPositions = ({
   particleRadius,
 }: any) => {
   for (let i = 0; i < currentParticleCount * 3; i += 3) {
-    const r = particleRadius * Math.cbrt(Math.random());
-    const theta = Math.random() * 2 * Math.PI;
-    const maxPhi = SECTOR_HALF_ANGLE * scrollProgress.current;
-    const phi = Math.random() * maxPhi;
-
-    const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = r * Math.cos(phi);
-    const z = r * Math.sin(phi) * Math.sin(theta);
-
-    const spread = maxDim * 0.05; // small positional jitter
-
-    targetPositions[i] = maxDim * 0 + (Math.random() - 0.5) * spread;
-    targetPositions[i + 1] = maxDim * 0.2 + (Math.random() - 0.5) * spread;
-    targetPositions[i + 2] = maxDim * 0.1 + (Math.random() - 0.5) * spread;
+    targetPositions[i] = 150;
+    targetPositions[i + 1] = 0;
+    targetPositions[i + 2] = 0;
   }
 };
 
@@ -264,8 +261,21 @@ export const updateParticles = ({
       positions[i + 1] += velocities[i + 1] * randomSpeed;
       positions[i + 2] += velocities[i + 2] * randomSpeed;
     }
-     i++;
+    i++;
   }
-  
+
   return newCount;
+};
+
+const mtlLightParticle = (color: string) => {
+  const texture = new THREE.TextureLoader().load("/assets/map_mask.png");
+  var material = new THREE.SpriteMaterial({
+    color: color,
+    map: texture,
+    blending: THREE.AdditiveBlending,
+    transparent: false,
+    alphaTest: 0.1,
+  });
+
+  return material;
 };

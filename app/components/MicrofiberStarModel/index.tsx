@@ -20,7 +20,7 @@ import {
 const MicrofiberStarModel: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const scrollProgress = useRef(0); // Track scroll progress for gathering
-  const rotationSpeed = useRef(0);
+  const rotationSpeed = useRef(0.005);
   const lastScrollDirection = useRef<"up" | "down" | null>(null);
 
   let maxDim = 0;
@@ -90,15 +90,15 @@ const MicrofiberStarModel: React.FC = () => {
         roughness: 1,
         metalness: 0,
         transparent: false,
-        opacity: 1.0, 
+        opacity: 1.0,
       });
 
       skinModel.traverse((child) => {
-        if((child as THREE.Mesh).isMesh) {
+        if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
           mesh.material = material;
         }
-      })
+      });
 
       // let skinObjectModel = new THREE.Group();
 
@@ -127,27 +127,28 @@ const MicrofiberStarModel: React.FC = () => {
     // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
+      addParticles({
+        count: 3,
+        currentParticleCount,
+        maxParticles,
+        particleRadius,
+        positions,
+        velocities,
+        gatherSpeeds,
+        targetPositions,
+        particlesGeometry,
+        updateCount: (v: any) => (currentParticleCount = v),
+      });
 
-      if (rotationSpeed.current > 0) {
+      if(currentParticleCount === maxParticles) currentParticleCount = particleCount;
+
+      if (rotationSpeed.current > 0.04) {
         updateTargetPositions({
           targetPositions,
           maxDim,
           currentParticleCount,
           scrollProgress: scrollProgress.current,
           particleRadius,
-        });
-
-        addParticles({
-          count: 5,
-          currentParticleCount,
-          maxParticles,
-          particleRadius,
-          positions,
-          velocities,
-          gatherSpeeds,
-          targetPositions,
-          particlesGeometry,
-          updateCount: (v: any) => (currentParticleCount = v),
         });
       }
 
@@ -186,16 +187,16 @@ const MicrofiberStarModel: React.FC = () => {
       const direction = delta > 0 ? "down" : "up";
 
       if (direction !== lastScrollDirection.current) {
-        if (direction === "up") {
-          regenerateInitialPositions({
-            positions,
-            velocities,
-            gatherSpeeds,
-            targetPositions,
-            particleRadius,
-            count: currentParticleCount,
-          });
-        }
+        // if (direction === "up") {
+        //   regenerateInitialPositions({
+        //     positions,
+        //     velocities,
+        //     gatherSpeeds,
+        //     targetPositions,
+        //     particleRadius,
+        //     count: currentParticleCount,
+        //   });
+        // }
         lastScrollDirection.current = direction;
       }
 
@@ -204,7 +205,7 @@ const MicrofiberStarModel: React.FC = () => {
       rotationSpeed.current +=
         (direction === "down" ? 1 : -1) * Math.abs(delta) * 0.00005;
       rotationSpeed.current = Math.max(
-        0,
+        0.005,
         Math.min(rotationSpeed.current, 0.05)
       );
     };
