@@ -118,7 +118,7 @@ const MicrofiberStarModel: React.FC = () => {
       objModel.add(starModel);
       objModel.rotation.x = Math.PI / 6;
       objModel.rotation.z = -Math.PI / 3;
-      objModel.rotation.y = -Math.PI / 40;
+      objModel.rotation.y = 0;
 
       configureCamera(camera, maxDim);
       scene.add(objModel);

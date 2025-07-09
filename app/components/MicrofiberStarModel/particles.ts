@@ -47,7 +47,7 @@ export const setupParticles = (
   const texture = textureLoader.load("/assets/map_mask.png");
 
   const material = new THREE.PointsMaterial({
-    color: 0xffffff,
+    color: 0xfaa320,
     map: texture,
     size: 10,
     sizeAttenuation: true,
@@ -98,8 +98,8 @@ export function sampleParticlesByRadialDistance(
 
     // Example gradient: inner = blue, outer = red
     // color.setHSL(0.6 - t * 0.6, 1.0, 0.5);
-    const innerColor = new THREE.Color(0xffff00); // Bright Yellow
-    const outerColor = new THREE.Color(0xff3300); // Strong Red + a little Yellow
+    const innerColor = new THREE.Color(0xfc5603); // Bright Yellow
+    const outerColor = new THREE.Color(0xfc5603); // Strong Red + a little Yellow
 
     color.lerpColors(innerColor, outerColor, t);
 
