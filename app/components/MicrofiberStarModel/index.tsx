@@ -78,9 +78,22 @@ const MicrofiberStarModel: React.FC = () => {
     directionalLight.shadow.camera.right = 100;
     directionalLight.shadow.camera.top = 100;
     directionalLight.shadow.camera.bottom = -100;
-    scene.add(directionalLight);
     directionalLight.position.set(-2, 8, 1);
     scene.add(directionalLight);
+
+    const directionalLightTwo = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLightTwo.castShadow = true;
+    directionalLightTwo.shadow.mapSize.width = 2048;
+    directionalLightTwo.shadow.mapSize.height = 2048;
+    directionalLightTwo.shadow.camera.near = 0.5;
+    directionalLightTwo.shadow.camera.far = 500;
+    directionalLightTwo.shadow.camera.left = -100;
+    directionalLightTwo.shadow.camera.right = 100;
+    directionalLightTwo.shadow.camera.top = 100;
+    directionalLightTwo.shadow.camera.bottom = -100;
+    directionalLightTwo.position.set(1, 1, -5);
+    scene.add(directionalLightTwo);
+    
 
     const fillLight = new THREE.DirectionalLight(0xffffff, 1);
     fillLight.position.set(-2, 1, -1);
@@ -147,9 +160,9 @@ const MicrofiberStarModel: React.FC = () => {
       particleRadius = maxDim * 1.5;
 
       objModel.add(starModel);
-      objModel.rotation.x = Math.PI / 8;
-      objModel.rotation.z = -Math.PI / 4;
-      objModel.rotation.y = 0;
+      objModel.rotation.x = Math.PI / 4;
+      objModel.rotation.z = -Math.PI / 3.5;
+      objModel.rotation.y = Math.PI / 6;
 
       configureCamera(camera, maxDim);
       scene.add(objModel);

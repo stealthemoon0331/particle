@@ -5,5 +5,5 @@ export const configureCamera = (
   maxDim: number
 ) => {
   camera.position.set(maxDim, maxDim, maxDim);
-  camera.lookAt(0, 0, 0);
+  camera.lookAt(-100, -100, 0);
 };
