@@ -45,17 +45,46 @@ const MicrofiberStarModel: React.FC = () => {
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    // const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+
+    const aspect = width / height;
+    const frustumSize = 2000; // You can tweak the zoom level here
+
+    const camera = new THREE.OrthographicCamera(
+      (-frustumSize * aspect) / 4,
+      (frustumSize * aspect) / 4,
+      frustumSize / 6,
+      -frustumSize / 6,
+      0.1,
+      5000
+    );
+
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setSize(width, height);
     renderer.setClearColor(0x000000, 0); // Transparent background
     mountRef.current.appendChild(renderer.domElement);
 
     // Lightin
     // scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 500;
+    directionalLight.shadow.camera.left = -100;
+    directionalLight.shadow.camera.right = 100;
+    directionalLight.shadow.camera.top = 100;
+    directionalLight.shadow.camera.bottom = -100;
     scene.add(directionalLight);
+    directionalLight.position.set(-2, 8, 1);
+    scene.add(directionalLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffffff, 1);
+    fillLight.position.set(-2, 1, -1);
+    scene.add(fillLight);
 
     if (!renderer.getContext()) {
       console.error("WebGL not supported");
@@ -97,6 +126,8 @@ const MicrofiberStarModel: React.FC = () => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
           mesh.material = material;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
         }
       });
 
@@ -116,8 +147,8 @@ const MicrofiberStarModel: React.FC = () => {
       particleRadius = maxDim * 1.5;
 
       objModel.add(starModel);
-      objModel.rotation.x = Math.PI / 6;
-      objModel.rotation.z = -Math.PI / 3;
+      objModel.rotation.x = Math.PI / 8;
+      objModel.rotation.z = -Math.PI / 4;
       objModel.rotation.y = 0;
 
       configureCamera(camera, maxDim);
@@ -140,7 +171,8 @@ const MicrofiberStarModel: React.FC = () => {
         updateCount: (v: any) => (currentParticleCount = v),
       });
 
-      if(currentParticleCount === maxParticles) currentParticleCount = particleCount;
+      if (currentParticleCount === maxParticles)
+        currentParticleCount = particleCount;
 
       if (rotationSpeed.current > 0.04) {
         updateTargetPositions({
@@ -177,8 +209,16 @@ const MicrofiberStarModel: React.FC = () => {
       if (!mountRef.current) return;
       const newWidth = mountRef.current.clientWidth;
       const newHeight = mountRef.current.clientHeight;
+      const newAspect = newWidth / newHeight;
+
       renderer.setSize(newWidth, newHeight);
-      camera.aspect = newWidth / newHeight;
+      // camera.aspect = newWidth / newHeight;
+      // camera.updateProjectionMatrix();
+
+      camera.left = (-frustumSize * newAspect) / 2;
+      camera.right = (frustumSize * newAspect) / 2;
+      camera.top = frustumSize / 2;
+      camera.bottom = -frustumSize / 2;
       camera.updateProjectionMatrix();
     };
 

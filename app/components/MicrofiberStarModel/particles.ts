@@ -114,7 +114,7 @@ export function sampleParticlesByRadialDistance(
   const material = new THREE.PointsMaterial({
     size: 2.5,
     // map: texture,
-    color: 0xffff00,
+    color: 0xf56d05,
     vertexColors: true,
     transparent: false,
     depthWrite: false,

@@ -20,6 +20,9 @@ export const loadParticleModel = (
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
 
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+
           // Bake transforms into geometry
           mesh.updateWorldMatrix(true, false);
           const geometry = mesh.geometry.clone();
@@ -49,8 +52,8 @@ export const loadParticleModel = (
           }
 
           // Second pass: assign colors
-          const innerColor = new THREE.Color(0xf17502); // Yellow
-          const outerColor = new THREE.Color(0xff6905); // Red-Orange
+          const innerColor = new THREE.Color(0xf5f105); // Yellow
+          const outerColor = new THREE.Color(0xf56d05); // Red-Orange
           const tempColor = new THREE.Color();
 
           for (let i = 0; i < count; i++) {
